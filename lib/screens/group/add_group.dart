@@ -16,7 +16,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   final _groupNameFormKey = GlobalKey<FormState>();
   final _groupNameController = TextEditingController();
   final _groupNameFocusNode = FocusNode();
-  bool _isPrivate = false;
+  final bool _isPrivate = false;
   final List<User> _selectedUsers = List.empty(growable: true);
 
   final Future<List<User>> _users = apiClient.getOtherUsers();
