@@ -79,6 +79,16 @@ Color getColor(User user) {
     Color(0xFFFFF5BA),
     Color(0xFFAEC6CF),
     Color(0xFFE6A8D7),
+    Color(0xFFCCE5FF),
+    Color(0xFFFFD6A5),
+    Color(0xFFBDE0FE),
+    Color(0xFFFFB5E8),
+    Color(0xFFCBAACB),
+    Color(0xFFFDFFB6),
+    Color(0xFFA0E7E5),
+    Color(0xFFFFDAC1),
+    Color(0xFFE2F0CB),
+    Color(0xFFD5AAFF)
   ];
 
   int emailHash = user.email.hashCode;

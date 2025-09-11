@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:swiftgift_app/screens/wish/filters.dart';
 import 'package:swiftgift_app/screens/wish/wish_details.dart';
@@ -21,6 +22,32 @@ class GroupDetailsScreen extends StatefulWidget {
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   bool _isJoining = false;
+  bool _isLeaving = false;
+
+  void _leaveGroup() async {
+    setState(() {
+      _isLeaving = true;
+    });
+
+    try {
+      await apiClient.leaveGroup(widget.group.id);
+
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      debugPrint('Error leaving group: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to leave group')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLeaving = false;
+        });
+      }
+    }
+  }
 
   void _invite() async {
     String url = await apiClient.getGroupInviteLink(widget.group.id);
@@ -42,8 +69,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-              builder: (context) =>
-                  GroupDetailsScreen(group: newGroup)),
+              builder: (context) => GroupDetailsScreen(group: newGroup)),
         );
       }
     } catch (e) {
@@ -68,7 +94,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     return FutureBuilder<GroupRole?>(
       future: apiClient.getLoggedInUsersRoleForGroup(widget.group.id),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || _isJoining) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            _isJoining ||
+            _isLeaving) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -110,7 +138,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                   color: Theme.of(context)
                                       .colorScheme
                                       .onSurface
-                                      .withOpacity(.5)),
+                                      .withValues(alpha: .5)),
                             ),
                             const Spacer(),
                             Chip(
@@ -125,13 +153,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: widget.group.visibility ==
-                                        GroupVisibility.public
+                                            GroupVisibility.public
                                         ? const Color.fromRGBO(
-                                        65, 136, 254, 100)
+                                            65, 136, 254, 100)
                                         : Colors.white),
                               ),
                               backgroundColor: widget.group.visibility ==
-                                  GroupVisibility.public
+                                      GroupVisibility.public
                                   ? const Color.fromRGBO(172, 204, 255, 100)
                                   : const Color.fromRGBO(65, 136, 254, 100),
                             ),
@@ -145,10 +173,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       filters: WishFilters(group: widget.group),
                       actions: isAuthorized
                           ? [
-                        WishAction(
-                            label: "Remove",
-                            function: _removeWishFromGroup)
-                      ]
+                              WishAction(
+                                  label: "Remove",
+                                  function: _removeWishFromGroup)
+                            ]
                           : [],
                     ),
                   ),
@@ -156,16 +184,28 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
             ),
             floatingActionButton: isMember
-                ? FloatingActionButton(
-              onPressed: _invite,
-              tooltip: 'Invite to group',
-              child: const Icon(Icons.person_add),
-            )
+                ? SpeedDial(
+                    icon: Icons.more_vert,
+                    activeIcon: Icons.close,
+                    tooltip: 'Group actions',
+                    children: [
+                      SpeedDialChild(
+                        child: const Icon(Icons.person_add),
+                        label: 'Invite to group',
+                        onTap: _invite,
+                      ),
+                      SpeedDialChild(
+                        child: const Icon(Icons.exit_to_app),
+                        label: 'Leave group',
+                        onTap: _leaveGroup,
+                      ),
+                    ],
+                  )
                 : FloatingActionButton(
-              onPressed: _joinGroup,
-              tooltip: 'Join group',
-              child: const Icon(Icons.group_add),
-            ),
+                    onPressed: _joinGroup,
+                    tooltip: 'Join group',
+                    child: const Icon(Icons.group_add),
+                  ),
           );
         }
       },

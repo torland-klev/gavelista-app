@@ -31,15 +31,15 @@ class _GroupCardState extends State<_GroupCard> {
             ? const Color.fromRGBO(146, 186, 255, 100)
             : theme.cardColor,
         child: InkWell(
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GroupDetailsScreen(group: widget.group),
-                ),
-              );
-              widget.onRefresh();
-            },
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GroupDetailsScreen(group: widget.group),
+              ),
+            );
+            widget.onRefresh();
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListTile(

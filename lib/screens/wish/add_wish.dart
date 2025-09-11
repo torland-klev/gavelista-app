@@ -408,8 +408,12 @@ class _AddOrEditWishScreenState extends State<AddOrEditWishScreen> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No groups found'));
         } else {
-          var groups = snapshot.data![0]! as List<Group>;
-          var wishGroups = snapshot.data![1]! as List<String>;
+          var groups = (widget.wishToEdit == null
+              ? snapshot.data
+              : snapshot.data![0]!) as List<Group>;
+          var wishGroups = (widget.wishToEdit == null
+              ? <String>[]
+              : snapshot.data![1]!) as List<String>;
           if (widget.wishToEdit != null) {
             widget.wishToEdit!.groupIds = wishGroups;
           }

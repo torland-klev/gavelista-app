@@ -102,16 +102,15 @@ class ApiClient {
   }
 
   Future<Group> _jsonToGroup(Map<String, dynamic> groupJson) async {
-  String id = groupJson['id'];
-  List<User> members = await groupMembers(id);
-  return Group.fromJson(groupJson, members);
-}
+    String id = groupJson['id'];
+    List<User> members = await groupMembers(id);
+    return Group.fromJson(groupJson, members);
+  }
 
   Future<List<User>> groupMembers(String groupId) async =>
       _fetch<User>('groups/$groupId/members', User.fromJson);
 
-  Future<List<Group>> groups() async =>
-      _fetch<Group>('groups', _jsonToGroup);
+  Future<List<Group>> groups() async => _fetch<Group>('groups', _jsonToGroup);
 
   Future<List<User>> getUsers() async => _fetch<User>('users', User.fromJson);
 
@@ -354,7 +353,8 @@ class ApiClient {
       return GroupRole.values.byName(res.body.toLowerCase());
     } else {
       if (await isLoggedInUserMemberOfGroup(groupId)) {
-        throw Exception("User is member of group $groupId, but no role was found.");
+        throw Exception(
+            "User is member of group $groupId, but no role was found.");
       } else {
         return Future.value(null);
       }
@@ -419,6 +419,11 @@ class ApiClient {
     } else {
       return null;
     }
+  }
+
+  Future<void> leaveGroup(String groupId) async {
+    Uri uri = Uri.parse('$_baseUrl/groups/$groupId/members/leave');
+    await http.post(uri, headers: _headers);
   }
 }
 
